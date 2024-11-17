@@ -9,6 +9,7 @@ def lambda_handler(event, context):
     if response.status_code != 200:
         return {
             'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'text': 'Failed to retrieve menu.'})
         }
 
@@ -17,6 +18,7 @@ def lambda_handler(event, context):
     if not gabys_menu_div:
         return {
             'statusCode': 200,
+            'headers': {'Content-Type': 'application/json'},
             'body': json.dumps({'text': 'Menu not found.'})
         }
 
@@ -24,5 +26,9 @@ def lambda_handler(event, context):
 
     return {
         'statusCode': 200,
-        'body': json.dumps({'text': menu_text})
+        'headers': {'Content-Type': 'application/json'},
+        'body': json.dumps({
+            'response_type': 'in_channel',
+            'text': menu_text
+        })
     }

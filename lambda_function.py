@@ -47,19 +47,29 @@ def lambda_handler(event, context):
 
                     # Check for "Salad of the week"
                     if 'Salad of the week' in section_title:
-                        salad_text = p.get_text(separator='\n', strip=True)
+                        # Format the salad text with bullet points
+                        content = p.get_text(separator='\n', strip=True)
+                        lines = content.split('\n')
+                        # Skip the first line (section title)
+                        salad_lines = ['• ' + line for line in lines[1:]]
+                        salad_text = '\n'.join(salad_lines)
 
                     # Check for current weekday
                     elif current_weekday in section_title:
-                        day_menu_text = p.get_text(separator='\n', strip=True)
+                        # Format the day's menu with bullet points
+                        content = p.get_text(separator='\n', strip=True)
+                        lines = content.split('\n')
+                        # Skip the first line (day title)
+                        day_menu_lines = ['• ' + line for line in lines[1:]]
+                        day_menu_text = '\n'.join(day_menu_lines)
 
             if not salad_text:
                 salad_text = 'Salad of the week not found.'
             if not day_menu_text:
                 day_menu_text = f"{current_weekday}'s menu not found."
 
-            # Combine the salad and day's menu
-            menu_text = f"{day_menu_text}\n\n{salad_text}"
+            # Combine the salad and day's menu with headers
+            menu_text = f"*{current_weekday}:*\n{day_menu_text}\n\n*Salad of the week:*\n{salad_text}"
 
     return {
         'statusCode': 200,

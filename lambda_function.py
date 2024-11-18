@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                 day_menu_text = f"{current_weekday}'s menu not found."
 
             # Combine the salad and day's menu
-            menu_text = f"Daily:\n{day_menu_text}\n\nSalad:\n{salad_text}"
+            menu_text = f"{day_menu_text}\n\n{salad_text}"
 
     return {
         'statusCode': 200,

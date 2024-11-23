@@ -6,7 +6,9 @@ def build_menu_blocks(menu_data_list):
         blocks.append(get_block_header(menu_data))
 
         # Add sections for each menu section
-        for section in menu_data['sections']:
+        sections = menu_data['sections']
+        num_sections = len(sections)
+        for index, section in enumerate(sections):
             # Add a section block with the heading
             blocks.append(get_block_section_header(section))
 
@@ -15,12 +17,14 @@ def build_menu_blocks(menu_data_list):
 
             blocks.append(get_block_section_text(items_text))
 
-            # Add a divider between sections
-            blocks.append({
-                "type": "divider"
-            })
+            # Add a divider between sections, except after the last one
+            if index < num_sections - 1:
+                blocks.append({
+                    "type": "divider"
+                })
 
     return blocks
+
 
 def get_block_header(menu_data):
     return {

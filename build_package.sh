@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Define variables
+set -e
+
 PACKAGE_DIR="package"
 ZIP_FILE="lambda_function.zip"
 
@@ -19,7 +20,7 @@ pip install -r requirements.txt --target $PACKAGE_DIR
 
 # Copy application code to the package directory
 echo "Copying application code..."
-cp lambda_function.py $PACKAGE_DIR/
+cp *.py $PACKAGE_DIR/
 
 # Create the deployment package zip file
 echo "Creating deployment package..."

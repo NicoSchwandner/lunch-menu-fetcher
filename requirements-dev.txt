@@ -1,0 +1,7 @@
+-r requirements.txt  # Includes production dependencies
+
+freezegun==1.5.1
+python-dateutil==2.9.0.post0
+PyYAML==6.0.2
+responses==0.25.3
+six==1.16.0

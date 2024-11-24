@@ -31,7 +31,7 @@ def run_local():
     responses.add(
         responses.GET,
         HILDAS_MENU_URL,
-        body=get_hildas_json_text(),
+        json=get_hildas_json_text(),
         status=200,
         content_type='application/json'
     )

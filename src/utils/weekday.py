@@ -2,7 +2,13 @@ from datetime import datetime
 import pytz
 from config import TIMEZONE
 
-def get_current_weekday():
+def get_current_weekday(weekday_language='english', weekday_index=None):
+
+    if weekday_index is None:
+        timezone = pytz.timezone(TIMEZONE)
+        current_time = datetime.now(timezone)
+        weekday_index = current_time.weekday()
+
     # Define the mapping from weekday numbers to names
     weekday_mapping_english = {
         0: 'Monday',
@@ -24,10 +30,11 @@ def get_current_weekday():
         6: 'Söndag'
     }
 
-    timezone = pytz.timezone(TIMEZONE)
-    current_time = datetime.now(timezone)
+    if weekday_language == 'english':
+        current_weekday = weekday_mapping_english[weekday_index]
+    elif weekday_language == 'swedish':
+        current_weekday = weekday_mapping_swedish[weekday_index]
+    else:
+        raise ValueError("Invalid weekday language. Supported languages are 'english' and 'swedish'.")
 
-    current_weekday_english = weekday_mapping_english[current_time.weekday()]
-    current_weekday_swedish = weekday_mapping_swedish[current_time.weekday()]
-
-    return current_weekday_english, current_weekday_swedish
+    return current_weekday

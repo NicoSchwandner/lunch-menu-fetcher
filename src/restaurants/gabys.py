@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from config import GABYS_MENU_URL
+from src.utils.weekday import get_current_weekday
 
-def get_gabys_menu_data(current_weekday):
+def get_gabys_menu_data(current_weekday_index):
     response = requests.get(GABYS_MENU_URL)
 
     if response.status_code != 200:
@@ -17,6 +18,7 @@ def get_gabys_menu_data(current_weekday):
     p_tags = gabys_menu_div.find_all('p')
 
     sections = []
+    current_weekday = get_current_weekday('english', current_weekday_index)
 
     for p in p_tags:
         # Get the strong span text

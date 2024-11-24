@@ -39,14 +39,16 @@ def run_local():
     # Use freezegun to set the current time to a specific day (e.g., Tuesday)
     with freeze_time("2024-11-26"):  # Assuming this date falls on a Tuesday
         # Simulate an event payload for AWS Lambda
-        event = {}
+        event = {
+            'sync': True  # Set the sync flag for local testing
+        }
         context = {}
 
         # Call the Lambda function handler
         response = lambda_handler(event, context)
 
         # Print the formatted response for easy debugging
-        print(json.dumps(json.loads(response['body']), indent=2))
+        print(json.dumps(json.loads(response['body']), indent=2, ensure_ascii=False))
 
 if __name__ == '__main__':
     run_local()

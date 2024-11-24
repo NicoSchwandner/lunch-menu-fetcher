@@ -1,12 +1,13 @@
 import requests
 from config import HILDAS_MENU_URL
 import logging
+from src.utils.weekday import get_current_weekday
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_hildas_menu_data(current_weekday):
+def get_hildas_menu_data(current_weekday_index):
     """
     Retrieves the menu data for Hilda's for the specified day of the week.
 
@@ -49,6 +50,7 @@ def get_hildas_menu_data(current_weekday):
         logger.error("No 'days' data found in the menu.")
         return None, "No 'days' data found in the menu."
 
+    current_weekday = get_current_weekday('english', current_weekday_index)
     # Normalize the current_weekday input
     current_weekday_lower = current_weekday.lower()
 

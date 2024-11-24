@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-from config import BROR_OCH_BORD_MENU_URL  # Ensure this URL is defined in your config
+from config import BROR_OCH_BORD_MENU_URL
+from src.utils.weekday import get_current_weekday
 
-def get_bror_och_bord_menu_data(current_weekday):
+def get_bror_och_bord_menu_data(current_weekday_index):
     """
     Retrieves the menu data for Bror och Bord for the specified day of the week.
 
@@ -34,6 +35,7 @@ def get_bror_och_bord_menu_data(current_weekday):
     p_tags = menu_container.find_all('p')
 
     sections = []
+    current_weekday = get_current_weekday('swedish', current_weekday_index)
     current_section = None
 
     for p in p_tags:

@@ -55,6 +55,7 @@ def process_menus():
         return None, str(e)
 
 def process_menus_and_respond(response_url):
+    logger.info("Starting asynchronous menu processing.")
     blocks, error = process_menus()
     if error:
         response_text = f"An error occurred: {error}"
@@ -73,5 +74,6 @@ def process_menus_and_respond(response_url):
     try:
         response = requests.post(response_url, headers=headers, data=json.dumps(slack_response))
         logger.info(f"Slack response status: {response.status_code}")
+        logger.info(f"Slack response text: {response.text}")
     except Exception as e:
         logger.exception("Failed to send response to Slack.")

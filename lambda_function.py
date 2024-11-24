@@ -18,6 +18,8 @@ def lambda_handler(event, context):
         params = parse_qs(body)
         response_url = params.get('response_url', [None])[0]
 
+        logger.info(f"Extracted response_url: {response_url}")
+
         if not response_url and not sync:
             logger.error("No response_url found in the request.")
             return {

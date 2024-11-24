@@ -1,5 +1,6 @@
 import logging
 
+from src.restaurants.hildas import get_hildas_menu_data
 from src.restaurants.bror_och_bord import get_bror_och_bord_menu_data
 from src.restaurants.gabys import get_gabys_menu_data
 from src.utils.weekday import get_current_weekday
@@ -31,6 +32,13 @@ def get_menu_blocks():
 
         if not menu_data_list:
             return None, 'No menu data available.'
+
+        # Get menu data from Hilda's
+        hildas_data, error = get_hildas_menu_data(current_weekday_english)
+        if error:
+            logger.error(f"Hilda's: {error}")
+        else:
+            menu_data_list.append(hildas_data)
 
         # Build blocks for the Slack message
         blocks = build_menu_blocks(menu_data_list)

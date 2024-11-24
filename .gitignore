@@ -1,6 +1,9 @@
 # Package Files #
 package/
 
+# Local debugging files
+local/tmp/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

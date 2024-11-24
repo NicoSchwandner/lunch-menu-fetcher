@@ -3,53 +3,77 @@ def build_menu_blocks(menu_data_list):
 
     for menu_data in menu_data_list:
         # Add a header block for the restaurant name
-        blocks.append(get_block_header(menu_data))
+        blocks.append(get_header(menu_data['restaurant_name']))
+
+        restaurant_elements = []
 
         # Add sections for each menu section
         sections = menu_data['sections']
-        num_sections = len(sections)
-        for index, section in enumerate(sections):
+        for section in sections:
             # Add a section block with the heading
-            blocks.append(get_block_section_header(section))
+            restaurant_elements.append(get_rich_text_section_item_bold(section['heading']))
 
-            # Add a section block with the items as bullet points
-            items_text = "\n".join([f"• {item}" for item in section['items']])
+            section_items = []
 
-            blocks.append(get_block_section_text(items_text))
+            for item in section['items']:
+                section_items.append(get_rich_text_section_item(item))
 
-            # Add a divider between sections, except after the last one
-            if index < num_sections - 1:
-                blocks.append({
-                    "type": "divider"
-                })
+            restaurant_elements.append(get_rich_text_bullet_list(section_items))
+
+        blocks.append(get_rich_text_node(restaurant_elements))
 
     return blocks
 
-
-def get_block_header(menu_data):
+def get_header(text):
     return {
         "type": "header",
         "text": {
             "type": "plain_text",
-            "text": menu_data['restaurant_name'],
+            "text": text,
             "emoji": True
         }
     }
 
-def get_block_section_header(section):
+def get_rich_text_node(children):
     return {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": f"*{section['heading']}*"
-        }
+        "type": "rich_text",
+        "elements": children
     }
 
-def get_block_section_text(items_text):
+def get_rich_text_section_node(children):
     return {
-        "type": "section",
-        "text": {
-            "type": "mrkdwn",
-            "text": items_text
-        }
+        "type": "rich_text_section",
+        "elements": children
+    }
+
+def get_rich_text_bullet_list(children):
+    return {
+        "type": "rich_text_list",
+        "style": "bullet",
+        "elements": children
+    }
+
+def get_rich_text_section_item_bold(text):
+    return {
+        "type": "rich_text_section",
+        "elements": [
+            {
+                "type": "text",
+                "text": text,
+                "style": {
+                    "bold": True
+                }
+            }
+        ]
+    }
+
+def get_rich_text_section_item(text):
+    return {
+        "type": "rich_text_section",
+        "elements": [
+            {
+                "type": "text",
+                "text": text
+            }
+        ]
     }

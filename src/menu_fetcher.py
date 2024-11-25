@@ -1,4 +1,5 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.restaurants.hildas import get_hildas_menu_data
 from src.restaurants.bror_och_bord import get_bror_och_bord_menu_data
@@ -16,29 +17,31 @@ def get_menu_blocks():
         # List to hold menu data from all restaurants
         menu_data_list = []
 
-        # Get menu data from Gaby's
-        gabys_data, error = get_gabys_menu_data(current_weekday_english)
-        if error:
-            logger.error(f"Gaby's: {error}")
-        else:
-            menu_data_list.append(gabys_data)
+        # Dictionary to map futures to restaurant names
+        future_to_restaurant = {}
 
-        # # Get menu data from Bror och Bord
-        # bror_och_bord_data, error = get_bror_och_bord_menu_data(current_weekday_swedish)
-        # if error:
-        #     logger.error(f"Bror och Bord: {error}")
-        # else:
-        #     menu_data_list.append(bror_och_bord_data)
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            # Schedule the calls to fetch menu data
+            future_to_restaurant[executor.submit(get_gabys_menu_data, current_weekday_english)] = "Gaby's"
+            future_to_restaurant[executor.submit(get_bror_och_bord_menu_data, current_weekday_swedish)] = "Bror och Bord"
+            future_to_restaurant[executor.submit(get_hildas_menu_data, current_weekday_english)] = "Hilda's"
 
-        # if not menu_data_list:
-        #     return None, 'No menu data available.'
+            # Set an overall timeout for the fetching process
+            timeout_seconds = 2.5
 
-        # # Get menu data from Hilda's
-        # hildas_data, error = get_hildas_menu_data(current_weekday_english)
-        # if error:
-        #     logger.error(f"Hilda's: {error}")
-        # else:
-        #     menu_data_list.append(hildas_data)
+            for future in as_completed(future_to_restaurant, timeout=timeout_seconds):
+                restaurant_name = future_to_restaurant[future]
+                try:
+                    menu_data, error = future.result()
+                    if error:
+                        logger.error(f"{restaurant_name}: {error}")
+                    else:
+                        menu_data_list.append(menu_data)
+                except Exception as e:
+                    logger.error(f"Exception occurred while fetching data for {restaurant_name}: {str(e)}")
+
+        if not menu_data_list:
+            return None, 'No menu data available.'
 
         # Build blocks for the Slack message
         blocks = build_menu_blocks(menu_data_list)

@@ -1,5 +1,5 @@
 import requests
-from config import HILDAS_MENU_URL
+from config import HILDAS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 import logging
 
 # Configure logging
@@ -19,7 +19,7 @@ def get_hildas_menu_data(current_weekday):
             - error (str or None): An error message if extraction fails, else None.
     """
     try:
-        response = requests.get(HILDAS_MENU_URL, timeout=10)
+        response = requests.get(HILDAS_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
         response.raise_for_status()
     except requests.RequestException as e:
         logger.error(f"Request failed: {e}")

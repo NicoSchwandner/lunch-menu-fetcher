@@ -1,9 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
-from config import GABYS_MENU_URL
+from config import GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 
 def get_gabys_menu_data(current_weekday):
-    response = requests.get(GABYS_MENU_URL)
+    response = requests.get(GABYS_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
 
     if response.status_code != 200:
         return None, 'Failed to retrieve menu.'

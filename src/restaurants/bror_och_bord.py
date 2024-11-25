@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
-from config import BROR_OCH_BORD_MENU_URL  # Ensure this URL is defined in your config
+from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 
 def get_bror_och_bord_menu_data(current_weekday):
     """
@@ -15,7 +15,7 @@ def get_bror_och_bord_menu_data(current_weekday):
             - error (str or None): An error message if extraction fails, else None.
     """
     try:
-        response = requests.get(BROR_OCH_BORD_MENU_URL, timeout=10)
+        response = requests.get(BROR_OCH_BORD_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
     except requests.RequestException as e:
         return None, f"Request failed: {e}"
 

@@ -12,36 +12,64 @@ logger.setLevel(logging.INFO)
 
 def get_menu_blocks():
     try:
+        # Get the current weekday in English and Swedish
         current_weekday_english, current_weekday_swedish = get_current_weekday()
 
-        # List to hold menu data from all restaurants
-        menu_data_list = []
+        # List of restaurants with their corresponding fetch functions and names, including order_index
+        restaurants = [
+            {
+                'order_index': 1,
+                'name': "Gaby's",
+                'function': get_gabys_menu_data,
+                'weekday': current_weekday_english
+            },
+            {
+                'order_index': 2,
+                'name': "Bror och Bord",
+                'function': get_bror_och_bord_menu_data,
+                'weekday': current_weekday_swedish
+            },
+            {
+                'order_index': 3,
+                'name': "Hilda's",
+                'function': get_hildas_menu_data,
+                'weekday': current_weekday_english
+            }
+        ]
 
-        # Dictionary to map futures to restaurant names
-        future_to_restaurant = {}
-
+        # Use ThreadPoolExecutor to fetch menus in parallel
         with ThreadPoolExecutor(max_workers=3) as executor:
-            # Schedule the calls to fetch menu data
-            future_to_restaurant[executor.submit(get_gabys_menu_data, current_weekday_english)] = "Gaby's"
-            future_to_restaurant[executor.submit(get_bror_och_bord_menu_data, current_weekday_swedish)] = "Bror och Bord"
-            future_to_restaurant[executor.submit(get_hildas_menu_data, current_weekday_english)] = "Hilda's"
+            # Create a mapping from future to restaurant info
+            future_to_restaurant = {
+                executor.submit(restaurant['function'], restaurant['weekday']): restaurant
+                for restaurant in restaurants
+            }
 
-            # Set an overall timeout for the fetching process
+            # Set a timeout for the fetching process
             timeout_seconds = 2.5
 
+            # List to hold menu data
+            menu_data_list = []
+
+            # As futures complete, collect results
             for future in as_completed(future_to_restaurant, timeout=timeout_seconds):
-                restaurant_name = future_to_restaurant[future]
+                restaurant = future_to_restaurant[future]
                 try:
                     menu_data, error = future.result()
                     if error:
-                        logger.error(f"{restaurant_name}: {error}")
+                        logger.error(f"{restaurant['name']}: {error}")
                     else:
+                        # Attach order_index to menu_data for sorting later
+                        menu_data['order_index'] = restaurant['order_index']
                         menu_data_list.append(menu_data)
                 except Exception as e:
-                    logger.error(f"Exception occurred while fetching data for {restaurant_name}: {str(e)}")
+                    logger.error(f"Exception occurred while fetching data for {restaurant['name']}: {str(e)}")
 
         if not menu_data_list:
             return None, 'No menu data available.'
+
+        # Sort the menu_data_list based on order_index
+        menu_data_list.sort(key=lambda x: x['order_index'])
 
         # Build blocks for the Slack message
         blocks = build_menu_blocks(menu_data_list)

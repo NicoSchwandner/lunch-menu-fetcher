@@ -53,8 +53,6 @@ def get_bror_och_bord_menu_data(current_weekday):
             # Since <br /> tags are converted to '\n' by BeautifulSoup's get_text with separator='\n'
             items_text = p.get_text(separator='\n', strip=True)
             items = [item.strip() for item in items_text.split('\n') if item.strip()]
-            if section_title == "Torsdag":
-                items.insert(0, ":pancakes: :steam_locomotive: :clock11:")
             current_section['items'].extend(items)
 
     if not sections:

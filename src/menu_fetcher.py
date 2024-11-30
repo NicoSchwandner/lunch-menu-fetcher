@@ -46,7 +46,7 @@ def get_menu_blocks():
             }
 
             # Set a timeout for the fetching process
-            timeout_seconds = 2.5
+            timeout_seconds = 2
 
             # List to hold menu data
             menu_data_list = []

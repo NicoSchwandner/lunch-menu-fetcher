@@ -1,6 +1,6 @@
 # General
 TIMEZONE = 'Europe/Stockholm'
-RESTAURANT_REQUEST_TIMEOUT = 2.2
+RESTAURANT_REQUEST_TIMEOUT = 1.9
 
 # Restaurants
 GABYS_MENU_URL = "https://jacyzhotel.com/en/restaurants/gabys/"

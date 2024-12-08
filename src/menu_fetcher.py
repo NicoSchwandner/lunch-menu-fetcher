@@ -17,22 +17,19 @@ def compile_and_post_menus(response_url: str):
         # Get the current weekday in English and Swedish
         current_weekday_english, current_weekday_swedish = get_current_weekday()
 
-        # List of restaurants with their corresponding fetch functions and names, including order_index
+        # List of restaurants with their corresponding fetch functions and names
         restaurants = [
             {
-                'order_index': 1,
                 'name': "Gaby's",
                 'function': get_gabys_menu_data,
                 'weekday': current_weekday_english
             },
             {
-                'order_index': 2,
                 'name': "Bror och Bord",
                 'function': get_bror_och_bord_menu_data,
                 'weekday': current_weekday_swedish
             },
             {
-                'order_index': 3,
                 'name': "Hilda's",
                 'function': get_hildas_menu_data,
                 'weekday': current_weekday_english
@@ -47,19 +44,14 @@ def compile_and_post_menus(response_url: str):
                 for restaurant in restaurants
             }
 
-            # Set a timeout for the fetching process
-            timeout_seconds = 2
-
             # As futures complete, collect results
-            for future in as_completed(future_to_restaurant, timeout=timeout_seconds):
+            for future in as_completed(future_to_restaurant):
                 restaurant = future_to_restaurant[future]
                 try:
                     menu_data, error = future.result()
                     if error:
                         logger.error(f"{restaurant['name']}: {error}")
                     else:
-                        # Attach order_index to menu_data for sorting later
-                        menu_data['order_index'] = restaurant['order_index']
                         blocks = build_menu_blocks(menu_data)
 
                         headers = {'Content-Type': 'application/json'}

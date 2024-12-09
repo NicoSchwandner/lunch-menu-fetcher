@@ -1,26 +1,25 @@
-def build_menu_blocks(menu_data_list):
+def build_menu_blocks(menu_data):
     blocks = []
 
-    for menu_data in menu_data_list:
-        # Add a header block for the restaurant name
-        blocks.append(get_header(menu_data['restaurant_name']))
+    # Add a header block for the restaurant name
+    blocks.append(get_header(menu_data['restaurant_name']))
 
-        restaurant_elements = []
+    restaurant_elements = []
 
-        # Add sections for each menu section
-        sections = menu_data['sections']
-        for section in sections:
-            # Add a section block with the heading
-            restaurant_elements.append(get_rich_text_section_item_bold(section['heading']))
+    # Add sections for each menu section
+    sections = menu_data['sections']
+    for section in sections:
+        # Add a section block with the heading
+        restaurant_elements.append(get_rich_text_section_item_bold(section['heading']))
 
-            section_items = []
+        section_items = []
 
-            for item in section['items']:
-                section_items.append(get_rich_text_section_item(item))
+        for item in section['items']:
+            section_items.append(get_rich_text_section_item(item))
 
-            restaurant_elements.append(get_rich_text_bullet_list(section_items))
+        restaurant_elements.append(get_rich_text_bullet_list(section_items))
 
-        blocks.append(get_rich_text_node(restaurant_elements))
+    blocks.append(get_rich_text_node(restaurant_elements))
 
     return blocks
 

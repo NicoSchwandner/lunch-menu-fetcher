@@ -1,74 +1,118 @@
 import logging
 import requests
 from bs4 import BeautifulSoup
+from typing import Tuple, List, Dict, Optional
+
 from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 from utils.weekday import CurrentWeekday
 
-def get_bror_och_bord_menu_data(logger: logging.Logger, current_weekday: CurrentWeekday):
-    """
-    Retrieves the menu data for Bror och Bord for the specified day of the week.
+def log_error_and_return_none(logger: logging.Logger, message: str) -> Tuple[None, str]:
+    logger.error(message)
+    return None, message
 
-    Parameters:
-        current_weekday (CurrentWeekday): An instance of CurrentWeekday.
+def get_bror_och_bord_website_content(logger: logging.Logger) -> Optional[str]:
+    """
+    Retrieves the website content for Bror och Bord.
+
+    Args:
+        logger (logging.Logger): The logger instance.
 
     Returns:
-        tuple: A tuple containing:
-            - menu_data (dict): The extracted menu data.
-            - error (str or None): An error message if extraction fails, else None.
+        Optional[str]: The raw HTML content of the Bror och Bord menu page, or None if retrieval fails.
     """
     try:
         response = requests.get(BROR_OCH_BORD_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
     except requests.RequestException as e:
-        return None, f"Request failed: {e}"
+        logger.error(f"Request failed: {e}")
+        return None
 
     if response.status_code != 200:
-        return None, f"Failed to retrieve menu. Status code: {response.status_code}"
+        logger.error(f"Failed to retrieve website content. Status code: {response.status_code}")
+        return None
 
-    soup = BeautifulSoup(response.content, 'html.parser')
+    return response.content
 
-    # Locate the main container holding the menu
-    # Adjust the selector based on the actual HTML structure
+def extract_bror_och_bord_menu_sections(
+    logger: logging.Logger,
+    content: str
+) -> Tuple[Optional[List[Dict[str, List[str]]]], Optional[str]]:
+    """
+    Extracts menu sections from the provided HTML content.
+
+    Args:
+        logger (logging.Logger): The logger instance.
+        content (str): The HTML content of the website.
+
+    Returns:
+        Tuple[Optional[List[Dict[str, List[str]]]], Optional[str]]:
+            A tuple containing:
+            - A list of menu sections, where each section is a dict with 'heading' and 'items'.
+            - An error message if extraction fails, otherwise None.
+    """
+    soup = BeautifulSoup(content, 'html.parser')
     menu_container = soup.find('div', class_='wpb_text_column')
+
     if not menu_container:
-        return None, 'Menu container not found.'
+        return log_error_and_return_none(logger, "Menu container not found.")
 
-    # Find all <p> tags within the menu container
     p_tags = menu_container.find_all('p')
-
     sections = []
     current_section = None
 
     for p in p_tags:
-        strong = p.find('strong')
-        if strong:
-            # Found a section title (e.g., 'Måndag')
-            section_title = strong.get_text(strip=True)
-            # Initialize a new section
+        strong_tag = p.find('strong')
+        if strong_tag:
+            # This paragraph seems to represent a section heading
+            section_title = strong_tag.get_text(strip=True)
             current_section = {
                 'heading': section_title,
                 'items': []
             }
             sections.append(current_section)
         elif current_section:
-            # Found menu items under the current section
-            # Split the text by <br /> tags to get individual items
-            # Since <br /> tags are converted to '\n' by BeautifulSoup's get_text with separator='\n'
+            # These paragraphs represent menu items under the current section
             items_text = p.get_text(separator='\n', strip=True)
             items = [item.strip() for item in items_text.split('\n') if item.strip()]
             current_section['items'].extend(items)
 
     if not sections:
-        return None, 'No menu sections found.'
+        return log_error_and_return_none(logger, "No sections found in the menu.")
 
-    # Filter sections based on the current_weekday
-    # Including 'Salad of the week' if applicable
+    return sections, None
+
+def get_bror_och_bord_menu_data(
+    logger: logging.Logger,
+    current_weekday: CurrentWeekday
+) -> Tuple[Optional[Dict[str, List[Dict[str, List[str]]]]], Optional[str]]:
+    """
+    Retrieves and filters the Bror och Bord menu data for the given weekday.
+
+    Args:
+        logger (logging.Logger): The logger instance.
+        current_weekday (CurrentWeekday): An instance representing the current weekday.
+
+    Returns:
+        Tuple[Optional[Dict], Optional[str]]:
+            - A dictionary containing restaurant name and relevant menu sections if successful.
+            - An error message if data extraction fails.
+    """
+    content = get_bror_och_bord_website_content(logger)
+    if not content:
+        return log_error_and_return_none(logger, "Failed to retrieve website content.")
+
+    sections, error = extract_bror_och_bord_menu_sections(logger, content)
+    if error or sections is None:
+        return None, error if error else "Failed to extract menu sections."
+
+    # Filter sections to only those relevant to the current weekday or the "Salad of the week"
+    weekday_str = current_weekday.as_swedish_str()
     filtered_sections = [
         section for section in sections
-        if current_weekday.as_swedish_str() in section['heading'] or 'Salad of the week' in section['heading']
+        if weekday_str in section['heading'] or 'Salad of the week' in section['heading']
     ]
 
     if not filtered_sections:
-        return None, f"No menu found for {current_weekday}."
+        return log_error_and_return_none(logger, f"No menu found for {weekday_str}.")
 
     menu_data = {
         'restaurant_name': "Bror och Bord",

@@ -1,4 +1,4 @@
-from response.lambda_response import LambdaResponse
+from src.response.lambda_response import LambdaResponse
 from src.menu_fetcher import compile_and_post_menus
 import logging
 

@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 import requests
 
+from src.response.slack_response import SlackMessagePost
 from src.restaurants.hildas import get_hildas_menu_data
 from src.restaurants.bror_och_bord import get_bror_och_bord_menu_data
 from src.restaurants.gabys import get_gabys_menu_data

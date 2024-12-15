@@ -1,14 +1,10 @@
+import logging
 import requests
 from config import HILDAS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
-import logging
 
 from utils.weekday import CurrentWeekday
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def get_hildas_menu_data(current_weekday: CurrentWeekday):
+def get_hildas_menu_data(logger: logging.Logger, current_weekday: CurrentWeekday):
     """
     Retrieves the menu data for Hilda's for the specified day of the week.
 

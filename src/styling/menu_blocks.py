@@ -1,4 +1,6 @@
-def build_menu_blocks(menu_data):
+import logging
+
+def build_menu_blocks(logger: logging.Logger, menu_data):
     blocks = []
 
     # Add a header block for the restaurant name

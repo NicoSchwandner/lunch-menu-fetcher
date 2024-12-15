@@ -37,7 +37,7 @@ def compile_and_post_menus(logger: logging.Logger, response_url: str):
         with ThreadPoolExecutor(max_workers=3) as executor:
             # Create a mapping from future to restaurant info
             future_to_restaurant = {
-                executor.submit(restaurant['function'], restaurant['weekday']): restaurant
+                executor.submit(restaurant['function'], logger, restaurant['weekday']): restaurant
                 for restaurant in restaurants
             }
 
@@ -49,7 +49,7 @@ def compile_and_post_menus(logger: logging.Logger, response_url: str):
                     if error:
                         logger.error(f"{restaurant['name']}: {error}")
                     else:
-                        blocks = build_menu_blocks(menu_data)
+                        blocks = build_menu_blocks(logger, menu_data)
 
                         headers = {'Content-Type': 'application/json'}
                         slack_payload = {

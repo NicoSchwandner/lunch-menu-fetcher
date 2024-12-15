@@ -1,9 +1,10 @@
+import logging
 import requests
 from bs4 import BeautifulSoup
 from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 from utils.weekday import CurrentWeekday
 
-def get_bror_och_bord_menu_data(current_weekday: CurrentWeekday):
+def get_bror_och_bord_menu_data(logger: logging.Logger, current_weekday: CurrentWeekday):
     """
     Retrieves the menu data for Bror och Bord for the specified day of the week.
 

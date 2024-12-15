@@ -9,7 +9,7 @@ from local.mock.hildas_json_mock import get_json_text as get_hildas_json_text
 
 @responses.activate
 def run_local():
-    # Mock the request to Gaby's menu URL
+    # Mock the requests to the restaurant URLs
     responses.add(
         responses.GET,
         GABYS_MENU_URL,
@@ -18,7 +18,6 @@ def run_local():
         content_type='text/html'
     )
 
-    # Mock the request to Bror och Bord menu URL
     responses.add(
         responses.GET,
         BROR_OCH_BORD_MENU_URL,
@@ -27,7 +26,6 @@ def run_local():
         content_type='text/html'
     )
 
-    # Mock the request to Hilda's menu URL
     responses.add(
         responses.GET,
         HILDAS_MENU_URL,
@@ -36,17 +34,36 @@ def run_local():
         content_type='application/json'
     )
 
-    # Use freezegun to set the current time to a specific day (e.g., Tuesday)
-    with freeze_time("2024-11-26"):  # Assuming this date falls on a Tuesday
-        # Simulate an event payload for AWS Lambda
-        event = {}
+    # Mock the Slack response URL
+    slack_mock_url = "https://hooks.slack.com/services/TEST/WEBHOOK/URL"
+    responses.add(
+        responses.POST,
+        slack_mock_url,
+        json={"ok": True},
+        status=200,
+        content_type='application/json'
+    )
+
+    # Freeze time to ensure we get a consistent weekday
+    with freeze_time("2024-11-26"):
+        event = {
+            "response_url": slack_mock_url
+        }
         context = {}
 
-        # Call the Lambda function handler
         response = lambda_handler(event, context)
+        print(json.dumps(response, indent=2))
 
-        # Print the formatted response for easy debugging
-        print(json.dumps(json.loads(response['body']), indent=2))
+    # After lambda_handler completes, inspect and write all requests to a text file
+    with open('requests_output.txt', 'w') as f:
+        for i, call in enumerate(responses.calls, start=1):
+            f.write(f"Request {i}:\n")
+            f.write(f"  URL: {call.request.url}\n")
+            f.write(f"  Method: {call.request.method}\n")
+            f.write(f"  Headers: {dict(call.request.headers)}\n")
+            # Body may be bytes, so decode if necessary
+            body = call.request.body.decode('utf-8') if hasattr(call.request.body, 'decode') else str(call.request.body)
+            f.write(f"  Body: {body}\n\n")
 
 if __name__ == '__main__':
     run_local()

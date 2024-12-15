@@ -1,5 +1,6 @@
 # Package Files #
 package/
+requests_output.txt
 
 # Local debugging files
 local/tmp/

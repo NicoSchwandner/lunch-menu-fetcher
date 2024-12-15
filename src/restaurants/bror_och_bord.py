@@ -1,13 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
 from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
+from utils.weekday import CurrentWeekday
 
-def get_bror_och_bord_menu_data(current_weekday):
+def get_bror_och_bord_menu_data(current_weekday: CurrentWeekday):
     """
     Retrieves the menu data for Bror och Bord for the specified day of the week.
 
     Parameters:
-        current_weekday (str): The current day of the week in Swedish (e.g., 'Måndag').
+        current_weekday (CurrentWeekday): An instance of CurrentWeekday.
 
     Returns:
         tuple: A tuple containing:
@@ -62,7 +63,7 @@ def get_bror_och_bord_menu_data(current_weekday):
     # Including 'Salad of the week' if applicable
     filtered_sections = [
         section for section in sections
-        if current_weekday in section['heading'] or 'Salad of the week' in section['heading']
+        if current_weekday.as_swedish_str() in section['heading'] or 'Salad of the week' in section['heading']
     ]
 
     if not filtered_sections:

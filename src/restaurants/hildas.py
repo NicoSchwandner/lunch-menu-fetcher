@@ -2,16 +2,18 @@ import requests
 from config import HILDAS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 import logging
 
+from utils.weekday import CurrentWeekday
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_hildas_menu_data(current_weekday):
+def get_hildas_menu_data(current_weekday: CurrentWeekday):
     """
     Retrieves the menu data for Hilda's for the specified day of the week.
 
     Parameters:
-        current_weekday (str): The current day of the week in English (e.g., 'Monday').
+        current_weekday (CurrentWeekday): An instance of CurrentWeekday.
 
     Returns:
         tuple: A tuple containing:
@@ -50,7 +52,7 @@ def get_hildas_menu_data(current_weekday):
         return None, "No 'days' data found in the menu."
 
     # Normalize the current_weekday input
-    current_weekday_lower = current_weekday.lower()
+    current_weekday_lower = current_weekday.as_english_str().lower()
 
     if not current_weekday_lower:
         logger.error(f"Invalid or unsupported weekday: {current_weekday}")

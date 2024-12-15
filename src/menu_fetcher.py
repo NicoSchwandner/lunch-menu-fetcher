@@ -6,30 +6,30 @@ import requests
 from src.restaurants.hildas import get_hildas_menu_data
 from src.restaurants.bror_och_bord import get_bror_och_bord_menu_data
 from src.restaurants.gabys import get_gabys_menu_data
-from src.utils.weekday import get_current_weekday
+from src.utils.weekday import CurrentWeekday
 from src.styling.menu_blocks import build_menu_blocks
 
 def compile_and_post_menus(logger: logging.Logger, response_url: str):
     try:
         # Get the current weekday in English and Swedish
-        current_weekday_english, current_weekday_swedish = get_current_weekday()
+        current_weekday = CurrentWeekday()
 
         # List of restaurants with their corresponding fetch functions and names
         restaurants = [
             {
                 'name': "Gaby's",
                 'function': get_gabys_menu_data,
-                'weekday': current_weekday_english
+                'weekday': current_weekday
             },
             {
                 'name': "Bror och Bord",
                 'function': get_bror_och_bord_menu_data,
-                'weekday': current_weekday_swedish
+                'weekday': current_weekday
             },
             {
                 'name': "Hilda's",
                 'function': get_hildas_menu_data,
-                'weekday': current_weekday_english
+                'weekday': current_weekday
             }
         ]
 

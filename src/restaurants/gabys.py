@@ -1,8 +1,9 @@
 import requests
 from bs4 import BeautifulSoup
 from config import GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
+from utils.weekday import CurrentWeekday
 
-def get_gabys_menu_data(current_weekday):
+def get_gabys_menu_data(current_weekday: CurrentWeekday):
     response = requests.get(GABYS_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
 
     if response.status_code != 200:
@@ -32,7 +33,7 @@ def get_gabys_menu_data(current_weekday):
             items = lines[1:]
 
             # If it's the current weekday or "Salad of the week", add to sections
-            if current_weekday in section_title or 'Salad of the week' in section_title:
+            if current_weekday.as_english_str() in section_title or 'Salad of the week' in section_title:
                 sections.append({
                     'heading': section_title,
                     'items': items

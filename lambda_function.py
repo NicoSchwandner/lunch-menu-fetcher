@@ -2,9 +2,12 @@ import json
 from src.menu_fetcher import compile_and_post_menus
 import logging
 
-# Configure logging
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(levelname)s - %(asctime)s - %(name)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 def lambda_handler(event, context):
     """
@@ -22,7 +25,7 @@ def lambda_handler(event, context):
     #     }
 
     try:
-        compile_and_post_menus(response_url)
+        compile_and_post_menus(logger, response_url)
 
     except Exception as e:
         logger.error(f'Error processing the request: {e}', exc_info=True)

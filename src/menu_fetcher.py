@@ -1,6 +1,6 @@
 import json
-import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 import requests
 
 from src.restaurants.hildas import get_hildas_menu_data
@@ -9,10 +9,7 @@ from src.restaurants.gabys import get_gabys_menu_data
 from src.utils.weekday import get_current_weekday
 from src.styling.menu_blocks import build_menu_blocks
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-
-def compile_and_post_menus(response_url: str):
+def compile_and_post_menus(logger: logging.Logger, response_url: str):
     try:
         # Get the current weekday in English and Swedish
         current_weekday_english, current_weekday_swedish = get_current_weekday()

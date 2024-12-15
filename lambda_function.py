@@ -1,4 +1,4 @@
-import json
+from response.lambda_response import LambdaResponse
 from src.menu_fetcher import compile_and_post_menus
 import logging
 
@@ -15,24 +15,16 @@ def lambda_handler(event, context):
     """
     response_url = event.get('response_url')
 
-    # if not response_url:
-    #     logger.error('Missing response_url in the event payload.')
-    #     return {
-    #         'statusCode': 400,
-    #         'body': json.dumps({
-    #             'message': 'Missing response_url.'
-    #         })
-    #     }
+    if not response_url:
+        error_message = 'Missing response_url in the event payload.'
+        logger.error(error_message)
+        return LambdaResponse(status_code=400, message=error_message).to_dict()
 
     try:
         compile_and_post_menus(logger, response_url)
 
     except Exception as e:
         logger.error(f'Error processing the request: {e}', exc_info=True)
+        return LambdaResponse(status_code=500, message=f'Error processing the request.\n\nInner exception: {e}').to_dict()
 
-    return {
-        'statusCode': 200,
-        'body': json.dumps({
-            'message': 'Menu fetched successfully.'
-        })
-    }
+    return LambdaResponse(message='Menu fetched successfully.').to_dict()

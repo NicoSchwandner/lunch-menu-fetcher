@@ -1,247 +1,85 @@
-# Lunch Menu Fetcher
+# Hilda's, Gaby's, and Bror och Bord Menu Lambda
 
-This repository contains the AWS Lambda function code for fetching and returning the lunch menu from Gaby's restaurant via a Slack slash command. It includes a utility script for packaging the application and a CI/CD pipeline setup using GitHub Actions to automate deployment.
+This AWS Lambda function fetches daily lunch menus from multiple restaurants (Hilda's, Gaby's, and Bror och Bord) and posts them to a specified Slack response URL. It leverages a parallel fetching approach to retrieve menus concurrently and then formats the results for Slack.
 
-## Table of Contents
+## Overview
 
-- [Lunch Menu Fetcher](#lunch-menu-fetcher)
-  - [Table of Contents](#table-of-contents)
-  - [Prerequisites](#prerequisites)
-  - [Setup Instructions](#setup-instructions)
-    - [AWS Lambda Function](#aws-lambda-function)
-    - [Slack App Configuration](#slack-app-configuration)
-  - [Usage](#usage)
-    - [Packaging the Application](#packaging-the-application)
-    - [Deploying to AWS Lambda](#deploying-to-aws-lambda)
-      - [Via AWS Console](#via-aws-console)
-      - [Via AWS CLI (Optional)](#via-aws-cli-optional)
-  - [CI/CD Pipeline](#cicd-pipeline)
-    - [GitHub Actions Workflow](#github-actions-workflow)
-    - [Setting Up AWS Credentials in GitHub](#setting-up-aws-credentials-in-github)
-    - [Monitoring the Pipeline](#monitoring-the-pipeline)
-  - [Script Explanation](#script-explanation)
-  - [Troubleshooting](#troubleshooting)
-  - [Setup](#setup)
+- **Input:**
+  The Lambda function expects an `event` containing a `response_url` parameter that specifies where results are posted (e.g., a Slack webhook URL). This Lambda function is designed to be used together with [lambda-proxy](https://github.com/NicoSchwandner/lambda-proxy).
 
-## Prerequisites
+- **Process:**
 
-- **Python 3.7 or later**
-- **pip** (Python package installer)
-- **Bash shell** (for running the `build_package.sh` script)
-- **AWS Account** with permissions to manage Lambda functions
-- **AWS CLI** (optional, for deploying via command line)
-- **GitHub Account** for repository hosting and CI/CD
-- **Slack Workspace** where you have permissions to install apps and create slash commands
+  1. Fetch menus from the different restaurant endpoints.
+  2. Parse and format the menus based on the current weekday.
+  3. Post the formatted menu blocks back to the Slack `response_url`.
 
-## Setup Instructions
+- **Output:**
+  The Lambda posts results to the Slack response URL. In case no menus are successfully fetched, it posts an ephemeral message indicating the failure.
 
-### AWS Lambda Function
+## Requirements
 
-1. **Create an AWS Lambda Function:**
+- **AWS Lambda Runtime:** Python 3.9 or compatible.
+- **Dependencies:** See `requirements.txt` for a list of dependencies like `requests`, `bs4`, and `responses`.
 
-   - Navigate to the AWS Lambda console.
-   - Create a new function named `LunchMenuFetcher` with Python 3.9 runtime.
+## Configuration
 
-2. **Set Up Necessary Permissions:**
+- **Configuration Variables:**
 
-   - Ensure the Lambda function has an execution role with basic Lambda permissions.
+  - `GABYS_MENU_URL`: URL to fetch Gaby's menu.
+  - `BROR_OCH_BORD_MENU_URL`: URL for Bror och Bord's menu.
+  - `HILDAS_MENU_URL`: URL for Hilda's menu.
+  - `RESTAURANT_REQUEST_TIMEOUT`: Timeout for HTTP requests, in seconds.
 
-### Slack App Configuration
+- **Slack Webhook / Response URL:**
+  The `response_url` is provided in the Lambda `event`. Ensure it points to a valid Slack URL or mock it during local tests.
 
-1. **Create a New Slack App:**
+## Local Development & Testing
 
-   - Go to the Slack API website and create a new app named `LunchBot`.
-
-2. **Configure the Slash Command:**
-
-   - Create a slash command `/lunch` with the request URL pointing to your API Gateway endpoint.
-
-3. **Set App Permissions:**
-
-   - Under **OAuth & Permissions**, add the following **Bot Token Scopes**:
-     - `commands`
-     - `chat:write`
-
-4. **Install the App:**
-
-   - Install the app to your workspace.
-   - Copy the **Signing Secret** and **Bot User OAuth Token** for later use.
-
-## Usage
-
-### Packaging the Application
-
-Use the `build_package.sh` script to package the application code and dependencies into a zip file ready for deployment to AWS Lambda.
-
-1. **Ensure that `requirements.txt` is up to date.**
-
-2. **Run the utility script:**
+1. **Install Dependencies:**
 
    ```bash
-   ./build_package.sh
+   pip install -r requirements.txt
    ```
 
-   This script will:
+2. **Local Mocks:**
+   The `local/mock` directory contains mock data for each restaurant. These are used to simulate the actual restaurant endpoints locally.
 
-   - Clean up any previous builds.
-   - Install dependencies into a `package` directory.
-   - Copy your `lambda_function.py` into the `package` directory.
-   - Create a zip file named `lambda_function.zip` containing the packaged application.
+3. **Local Run Script:**
+   For local debugging, you can use a script like `run_local.py` (see the example in the conversation above). This script:
 
-### Deploying to AWS Lambda
+   - Mocks out the HTTP requests using `responses`.
+   - Freezes time to a specific date (using `freezegun`) to test weekday-based logic.
+   - Calls `lambda_handler` with a dummy event and context.
+   - Prints out the results and can log all requests to a file.
 
-#### Via AWS Console
+   Example usage:
 
-1. **Navigate to the AWS Lambda Console.**
+   ```bash
+   python run_local.py
+   ```
 
-2. **Select your Lambda function** or **create a new one**.
+   After running, check `requests_output.txt` to see what requests were made and what was posted to Slack.
 
-3. **Upload the Deployment Package:**
+## Deployment
 
-   - In the **Function code** section, select **"Upload from > .zip file"**.
-   - Click **"Upload"** and select the `lambda_function.zip` file generated by the script.
-   - Click **"Save"**.
+This project uses a GitHub Actions CI/CD pipeline to automatically package and deploy the Lambda function to AWS. The pipeline is triggered on:
 
-#### Via AWS CLI (Optional)
+- Pushes to the `main` branch (excluding changes to `README.md`).
+- Manual triggers via the `workflow_dispatch` event.
 
-If you prefer deploying via the command line:
+### Key Steps in the Pipeline
 
-```bash
-aws lambda update-function-code --function-name LunchMenuFetcher --zip-file fileb://lambda_function.zip
-```
+1. **Build Package**: Runs `build_package.sh` to create `lambda_function.zip`.
+2. **Deploy to AWS Lambda**: Updates the `LunchMenuFetcher` function using the AWS CLI.
 
-## CI/CD Pipeline
+### Prerequisites
 
-### GitHub Actions Workflow
+- Ensure the Lambda function `LunchMenuFetcher` exists in your AWS account.
+- Add the following secrets to your repository:
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+  - `AWS_REGION`
 
-We have set up a GitHub Actions workflow that automates the build and deployment process whenever code is pushed to the `main` branch.
+### Triggering Deployment
 
-The workflow file is located at `.github/workflows/deploy.yml`.
-
-**Workflow Triggers:**
-
-- **On Push to `main`:** The workflow runs and deploys the updated code to AWS Lambda.
-
-**Key Steps in the Workflow:**
-
-- **Checkout Code:** Clones the repository.
-- **Set Up Python Environment:** Sets the Python version to match the Lambda runtime.
-- **Install Dependencies:** Installs required Python packages.
-- **Run Build Script:** Executes `build_package.sh` to create the deployment package.
-- **Configure AWS Credentials:** Uses stored secrets to authenticate with AWS.
-- **Deploy to AWS Lambda:** Updates the Lambda function code using AWS CLI.
-
-### Setting Up AWS Credentials in GitHub
-
-To allow GitHub Actions to deploy to AWS Lambda, you need to set up AWS credentials in your GitHub repository secrets.
-
-1. **Create an AWS IAM User with Programmatic Access:**
-
-   - Go to AWS IAM console and create a new user with `AWSLambdaFullAccess` permissions or a custom policy with `lambda:UpdateFunctionCode` permission.
-
-2. **Add AWS Credentials to GitHub Secrets:**
-
-   - Go to your GitHub repository.
-   - Navigate to **Settings > Secrets and variables > Actions > New repository secret**.
-   - Add the following secrets:
-
-     - `AWS_ACCESS_KEY_ID`
-     - `AWS_SECRET_ACCESS_KEY`
-     - `AWS_REGION`
-
-### Monitoring the Pipeline
-
-- **Check Workflow Runs:**
-
-  - Go to the **Actions** tab in your GitHub repository.
-  - Monitor the workflow runs and check logs for each step.
-
-- **Testing the Deployment:**
-
-  - After a successful workflow run, test the `/lunch` command in your Slack workspace to ensure the Lambda function is working as expected.
-
-## Script Explanation
-
-The `build_package.sh` script automates the packaging process for your AWS Lambda function.
-
-- **Cleaning Up Previous Builds:**
-
-  ```bash
-  rm -rf $PACKAGE_DIR
-  rm -f $ZIP_FILE
-  ```
-
-  Removes any existing `package` directory and `lambda_function.zip` file to ensure a clean build.
-
-- **Creating Package Directory:**
-
-  ```bash
-  mkdir -p $PACKAGE_DIR
-  ```
-
-  Creates a new directory named `package` where dependencies and code will be placed.
-
-- **Installing Dependencies:**
-
-  ```bash
-  pip install -r requirements.txt --target $PACKAGE_DIR
-  ```
-
-  Installs all Python dependencies listed in `requirements.txt` into the `package` directory.
-
-- **Copying Application Code:**
-
-  ```bash
-  cp lambda_function.py $PACKAGE_DIR/
-  ```
-
-  Copies your Lambda function code into the `package` directory.
-
-- **Creating Deployment Package:**
-
-  ```bash
-  cd $PACKAGE_DIR
-  zip -r ../$ZIP_FILE .
-  cd ..
-  ```
-
-  Zips the contents of the `package` directory into `lambda_function.zip` for deployment.
-
-## Troubleshooting
-
-- **Permission Denied When Running Script:**
-
-  Ensure the script has execute permissions:
-
-  ```bash
-  chmod +x build_package.sh
-  ```
-
-- **Missing Dependencies:**
-
-  If you encounter errors about missing modules when running your Lambda function:
-
-  - Make sure all required dependencies are listed in `requirements.txt`.
-  - Re-run the `build_package.sh` script after updating `requirements.txt`.
-
-- **Incorrect Python Version:**
-
-  AWS Lambda supports specific Python versions. Ensure your code and dependencies are compatible with the Python runtime you've selected in AWS Lambda.
-
-- **"Missing Authentication Token" Error:**
-
-  - Ensure your API Gateway endpoint URL is correct and includes the stage and resource path.
-  - Verify that the HTTP method matches the one configured in API Gateway.
-  - Check that your API has been deployed after any changes.
-
-## Setup
-
-- **Setting Up AWS Credentials:**
-
-  - Store your AWS credentials securely in GitHub repository secrets.
-  - Use an IAM user with minimal permissions required for deployment.
-
-- **Testing the Slack Command:**
-
-  - After deployment, test the `/lunch` command in your Slack workspace.
-  - Verify that the response is visible to everyone in the channel.
+- Push changes to `main` or trigger the workflow manually in GitHub Actions.

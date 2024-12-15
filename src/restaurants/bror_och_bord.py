@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 from typing import Tuple, List, Dict, Optional
 
 from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
-from restaurants.general import get_website_content
-from utils.weekday import CurrentWeekday
+from src.restaurants.general import get_website_content
+from src.utils.weekday import CurrentWeekday
 
 def log_error_and_return_none(logger: logging.Logger, message: str) -> Tuple[None, str]:
     logger.error(message)
@@ -55,7 +55,6 @@ def extract_bror_och_bord_menu_sections(
 
     if not sections:
         return log_error_and_return_none(logger, "No sections found in the menu.")
-
     return sections, None
 
 def get_bror_och_bord_menu_data(
@@ -91,6 +90,8 @@ def get_bror_och_bord_menu_data(
 
     if not filtered_sections:
         return log_error_and_return_none(logger, f"No menu found for {weekday_str}.")
+
+    logger.info(f"Successfully extracted menu for {current_weekday} from Bror och Bord.")
 
     menu_data = {
         'restaurant_name': "Bror och Bord",

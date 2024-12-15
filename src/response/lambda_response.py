@@ -8,6 +8,7 @@ class LambdaResponse:
     def __init__(self, status_code: int = 200, message: str = "Hello from secondary Lambda function!"):
         self.status_code = status_code
         self.response_type = 'ephemeral'
+        self.message = message
 
     def to_dict(self) -> dict:
         return {

@@ -2,8 +2,8 @@ import logging
 from typing import Tuple, Optional, List, Dict
 
 from config import HILDAS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
-from restaurants.general import get_json_data
-from utils.weekday import CurrentWeekday
+from src.restaurants.general import get_json_data
+from src.utils.weekday import CurrentWeekday
 
 def extract_menu_items(
     logger: logging.Logger, data: List[Dict], current_weekday: CurrentWeekday

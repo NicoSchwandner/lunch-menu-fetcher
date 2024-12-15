@@ -2,8 +2,8 @@ import logging
 from typing import Tuple, Optional, Dict, List
 from bs4 import BeautifulSoup
 from config import GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
-from restaurants.general import get_website_content
-from utils.weekday import CurrentWeekday
+from src.restaurants.general import get_website_content
+from src.utils.weekday import CurrentWeekday
 
 
 def extract_gabys_menu_sections(

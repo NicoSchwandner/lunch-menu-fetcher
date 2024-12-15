@@ -16,7 +16,7 @@ class CurrentWeekday:
     def __init__(self, override_timezone=None, override_time=None):
         self.override_timezone: pytz.timezone = override_timezone
         self.override_time: datetime = override_time
-        self.weekday: Weekdays = self.get_current_weekday(self)
+        self.weekday: Weekdays = self.get_current_weekday()
 
     def get_current_weekday(self):
         timezone = self.override_timezone or pytz.timezone(TIMEZONE)

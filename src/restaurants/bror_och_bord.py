@@ -1,36 +1,14 @@
 import logging
-import requests
 from bs4 import BeautifulSoup
 from typing import Tuple, List, Dict, Optional
 
 from config import BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
+from restaurants.general import get_website_content
 from utils.weekday import CurrentWeekday
 
 def log_error_and_return_none(logger: logging.Logger, message: str) -> Tuple[None, str]:
     logger.error(message)
     return None, message
-
-def get_bror_och_bord_website_content(logger: logging.Logger) -> Optional[str]:
-    """
-    Retrieves the website content for Bror och Bord.
-
-    Args:
-        logger (logging.Logger): The logger instance.
-
-    Returns:
-        Optional[str]: The raw HTML content of the Bror och Bord menu page, or None if retrieval fails.
-    """
-    try:
-        response = requests.get(BROR_OCH_BORD_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
-    except requests.RequestException as e:
-        logger.error(f"Request failed: {e}")
-        return None
-
-    if response.status_code != 200:
-        logger.error(f"Failed to retrieve website content. Status code: {response.status_code}")
-        return None
-
-    return response.content
 
 def extract_bror_och_bord_menu_sections(
     logger: logging.Logger,
@@ -96,7 +74,7 @@ def get_bror_och_bord_menu_data(
             - A dictionary containing restaurant name and relevant menu sections if successful.
             - An error message if data extraction fails.
     """
-    content = get_bror_och_bord_website_content(logger)
+    content = get_website_content(logger, BROR_OCH_BORD_MENU_URL, RESTAURANT_REQUEST_TIMEOUT)
     if not content:
         return log_error_and_return_none(logger, "Failed to retrieve website content.")
 

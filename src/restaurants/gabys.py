@@ -1,16 +1,13 @@
 import logging
-import requests
 from bs4 import BeautifulSoup
 from config import GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
+from restaurants.general import get_website_content
 from utils.weekday import CurrentWeekday
 
 def get_gabys_menu_data(logger: logging.Logger, current_weekday: CurrentWeekday):
-    response = requests.get(GABYS_MENU_URL, timeout=RESTAURANT_REQUEST_TIMEOUT)
+    content = get_website_content(logger, GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT)
 
-    if response.status_code != 200:
-        return None, 'Failed to retrieve menu.'
-
-    soup = BeautifulSoup(response.content, 'html.parser')
+    soup = BeautifulSoup(content, 'html.parser')
     gabys_menu_div = soup.find('div', class_='gabys-menu')
     if not gabys_menu_div:
         return None, 'Menu not found.'

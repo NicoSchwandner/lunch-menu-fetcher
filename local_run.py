@@ -55,7 +55,7 @@ def run_local():
         print(json.dumps(response, indent=2))
 
     # After lambda_handler completes, inspect and write all requests to a text file
-    with open('requests_output.txt', 'w') as f:
+    with open('local/tmp/requests_output.txt', 'w') as f:
         for i, call in enumerate(responses.calls, start=1):
             f.write(f"Request {i}:\n")
             f.write(f"  URL: {call.request.url}\n")

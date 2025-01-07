@@ -1,4 +1,5 @@
 import json
+import os
 from freezegun import freeze_time
 import responses
 from lambda_function import lambda_handler
@@ -54,6 +55,8 @@ def run_local():
         response = lambda_handler(event, context)
         print(json.dumps(response, indent=2))
 
+    os.makedirs('local/tmp', exist_ok=True)
+    
     # After lambda_handler completes, inspect and write all requests to a text file
     with open('local/tmp/requests_output.txt', 'w') as f:
         for i, call in enumerate(responses.calls, start=1):

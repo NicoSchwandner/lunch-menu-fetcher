@@ -27,6 +27,9 @@ def extract_gabys_menu_sections(
 
     gabys_menu_div = soup.find('div', class_='gabys-menu')
     if not gabys_menu_div:
+        gabys_menu_div = soup.find('div', class_='weekly-menu')
+
+    if not gabys_menu_div:
         return _log_and_return_error(logger, "Menu not found.")
 
     sections = []

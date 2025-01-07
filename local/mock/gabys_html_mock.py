@@ -1,54 +1,26 @@
 def get_html_text():
-    return """<div class="gabys-menu">
-        <strong>
-            <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4; display: inline-block; margin-bottom: 7px;">Gaby's Menu (Week 47)</span>
-        </strong>
-        <br>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Salad of the week</span>
-            </strong>
-            <br> Hoisinbakad fläsksida, morot, mango, gurka, sojamajonnäs, jordnötter- och koriander
-        </p>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Monday</span>
-            </strong>
-            <br> Bakad fisk med potatisstomp, rostad blomkål, rostade hasselnötter och brynt sojasmör
-            <br> Pasta med tomatsås, chilistekt salsiccafärs, parmesan, ruccola och picklad lök
-            <br> Fried rice med rökt tofu, syrlig rödkålsallad, ingefärsmajonnäs och koriander
-        </p>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Tuesday</span>
-            </strong>
-            <br> Halstrad lax med kokt potatis, hollandaisesås, bönor och dill
-            <br> Pannbiff med potatispuré, timjangräddsås, rårörda lingon, pressgurka och persilja
-            <br> Spenat- och ricotta fylld tortellini med basilikasås, ruccola och rostade pinjenötter
-        </p>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Wednesday</span>
-            </strong>
-            <br> Ångad fisk med potatispuré, rödvinssås, bacon, brysselkål och dill
-            <br> Kyckling “Africana” med ris, currysås, mandarinchutney, jordnötter, bananchips och gräslök
-            <br> Morot- och halloumibiffar med rostad potatis, morotspuré och äppeltzatziki
-        </p>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Thursday</span>
-            </strong>
-            <br> Asiatisk fiskgryta på grön curry med potatis, morot, räkor, salladslök och koriander
-            <br> Nattbakat högrev med rostad potatis, bbqsås och coleslaw
-            <br> Chili sin carne med jasminris, tortillachips, gräddfil och koriander
-        </p>
-        <p>
-            <strong>
-                <span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Friday</span>
-            </strong>
-            <br> Fisktacos med tortilla, mango- och ananassalsa, picklad gurka, chilimajonnäs och koriander
-            <br> Pulled pork burgare med pommes, picklad rödkål, chipotlemajonnäs och koriander
-            <br> Friterad pannoumi med rostad potatis, bearnaisesås, tomat- och löksallad
-        </p>
-    </div>
+    return """<div id="lunch" class="fusion-container-anchor"><div class="fusion-fullwidth fullwidth-box fusion-builder-row-4 fusion-flex-container fusion-parallax-fixed hundred-percent-fullwidth non-hundred-percent-height-scrolling fusion-custom-z-index lazyloaded" style="--awb-border-radius-top-left: 0px; --awb-border-radius-top-right: 0px; --awb-border-radius-bottom-right: 0px; --awb-border-radius-bottom-left: 0px; --awb-z-index: 9; --awb-padding-top: 31px; --awb-padding-right: 8%; --awb-padding-bottom: 51px; --awb-padding-left: 8%; --awb-padding-right-medium: 4%; --awb-padding-left-medium: 4%; --awb-padding-right-small: 4%; --awb-padding-left-small: 4%; --awb-background-color: #d6e8d0; --awb-background-size: cover; --awb-flex-wrap: wrap; background-attachment: fixed; background-image: url(&quot;https://jacyzhotel.com/wp-content/uploads/2022/11/gabbyz-background.jpg&quot;);" data-bg="https://jacyzhotel.com/wp-content/uploads/2022/11/gabbyz-background.jpg"><div class="fusion-builder-row fusion-row fusion-flex-align-items-flex-start fusion-flex-justify-content-center fusion-flex-content-wrap" style="width:calc( 100% + 0px ) !important;max-width:calc( 100% + 0px ) !important;margin-left: calc(-0px / 2 );margin-right: calc(-0px / 2 );"><div class="fusion-layout-column fusion_builder_column fusion-builder-column-5 fusion_builder_column_1_1 1_1 fusion-flex-column fusion-flex-align-self-stretch weekly-menu" style="--awb-padding-top:31px px;--awb-padding-right:12%;--awb-padding-bottom:31px;--awb-padding-left:12%;--awb-padding-right-medium:6%;--awb-padding-left-medium:6%;--awb-padding-right-small:4%;--awb-padding-bottom-small:25px;--awb-padding-left-small:4%;--awb-bg-color:#f2f4f4;--awb-bg-color-hover:#f2f4f4;--awb-bg-position:center center;--awb-bg-size:cover;--awb-border-color:#e0ead3;--awb-border-top:10px;--awb-border-right:10px;--awb-border-bottom:10px;--awb-border-left:10px;--awb-border-style:solid;--awb-width-large:100%;--awb-margin-top-large:0px;--awb-spacing-right-large:0px;--awb-margin-bottom-large:0px;--awb-spacing-left-large:0px;--awb-width-medium:100%;--awb-order-medium:0;--awb-spacing-right-medium:0px;--awb-spacing-left-medium:0px;--awb-width-small:100%;--awb-order-small:0;--awb-spacing-right-small:0px;--awb-spacing-left-small:0px;"><div class="fusion-column-wrapper fusion-column-has-shadow fusion-flex-justify-content-flex-start fusion-content-layout-column"><div class="fusion-title title fusion-title-2 fusion-sep-none fusion-title-center fusion-title-text fusion-title-size-div" style="--awb-text-color:#476586;--awb-margin-top:31px;--awb-margin-top-small:25px;--awb-font-size:20px;"><div class="fusion-title-heading title-heading-center title-heading-tag" style="font-family:&quot;Quentin&quot;;font-style:normal;font-weight:400;margin:0;font-size:1em;line-height:1.2;">Weekly Lunch Menu</div></div><div class="fusion-text fusion-text-7 fusion-text-no-margin" style="--awb-content-alignment:center;--awb-font-size:12px;--awb-text-color:#476586;--awb-margin-bottom:30px;--awb-text-font-family:&quot;Quentin&quot;;--awb-text-font-style:normal;--awb-text-font-weight:400;"><p class="p2"><span class="s1"><span class="Apple-converted-space"> Just come by, no table reservation needed.<br>
+</span></span>(Lunch is served between 11:00 – 13:30 Monday to Friday)<br>
+Includes salad, bread and coffee.</p>
+</div><div class="fusion-title title fusion-title-3 fusion-sep-none fusion-title-center fusion-title-text fusion-title-size-div" style="--awb-text-color:#476586;--awb-margin-top:0px;--awb-margin-bottom:25px;--awb-font-size:20px;"><div class="fusion-title-heading title-heading-center title-heading-tag" style="font-family:&quot;Quentin&quot;;font-style:normal;font-weight:400;margin:0;font-size:1em;line-height:1.2;">139 SEK / pers. (Week 2)</div></div><div class="fusion-text fusion-text-8 larger-p-desktop" style="--awb-content-alignment:center;--awb-font-size:0.88em;--awb-text-transform:none;--awb-text-color:#476586;"><p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Salad of the week</span></strong><br>
+Caesarsallad med kyckling, krispigt bacon, picklad rödlök, parmesan och krutonger</p>
+<p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Monday</span></strong><br>
+CLOSED</p>
+<p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Tuesday</span></strong><br>
+Friterad spätta med rostad potatis, pepparrotsmajonnäs, spenat, citron och dill<br>
+Köttbullar med potatispuré, gräddsås, rårörda lingon, pressgurka och persilja<br>
+Ricotta fylld Cannelloni med örtig tomatsås, oliver, ruccola och parmesan</p>
+<p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Wednesday</span></strong><br>
+Halstrad lax med kokt potatis, hollandaisesås och rostad broccoli<br>
+Fläsksida med ris, kimchimajonnäs, kålsallad, jordnötter och koriander<br>
+Het Linsgryta med sötpotatis, paprika, kokt ris, naan, smetana och koriander</p>
+<p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Thursday</span></strong><br>
+Örtbakad fisk med potatispuré, skaldjurssås, fänkål, citron och gräslök<br>
+Butter chicken med jasmineris, paprika, naan, cashew och koriander<br>
+Svamppaj med purjolök, prästost, tomat och löksallad</p>
+<p><strong><span style="color: #476586; font-family: Quentin; font-size: 18px; letter-spacing: 0.15px; text-align: center; background-color: #f2f4f4;">Friday</span></strong><br>
+Gaby´s Bouillabaisse med rotfrukter, räkor, krutonger och saffransaioli<br>
+Högrevsburgar med ost, Gaby’s dressing, sallad, picklad lök och pommes<br>
+Pannoumiburgare, med chilimajonnäs, sallad, tomat och pommes</p>
+</div></div></div></div></div></div>
     """

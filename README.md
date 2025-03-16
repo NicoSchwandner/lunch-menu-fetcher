@@ -38,7 +38,7 @@ This AWS Lambda function fetches daily lunch menus from multiple restaurants (Hi
 1. **Install Dependencies:**
 
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
 
 2. **Local Mocks:**
@@ -55,7 +55,7 @@ This AWS Lambda function fetches daily lunch menus from multiple restaurants (Hi
    Example usage:
 
    ```bash
-   python run_local.py
+   python local_run.py
    ```
 
    After running, check `requests_output.txt` to see what requests were made and what was posted to Slack.

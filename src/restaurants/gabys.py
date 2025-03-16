@@ -1,16 +1,19 @@
 import logging
+import re
 from typing import Tuple, Optional, Dict, List
 from bs4 import BeautifulSoup
 from config import GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 from src.restaurants.general import get_website_content
 from src.utils.weekday import CurrentWeekday
 
-
 def extract_gabys_menu_sections(
     logger: logging.Logger, content: str, current_weekday: CurrentWeekday
 ) -> Tuple[Optional[List[Dict[str, List[str]]]], Optional[str]]:
     """
     Extracts menu sections from Gaby's website content for the given weekday.
+
+    Adjusted to handle scenarios where a heading and its items 
+    (like "Salad of the week") appear in the same <p>.
 
     Args:
         logger (logging.Logger): The logger instance.
@@ -22,44 +25,71 @@ def extract_gabys_menu_sections(
             - A list of menu sections, each containing a heading and items.
             - An error message if extraction fails, or None on success.
     """
-    # Parse the HTML content
     soup = BeautifulSoup(content, 'html.parser')
 
-    gabys_menu_div = soup.find('div', class_='gabys-menu')
+    # Attempt to find the new "weekly-menu" container.
+    gabys_menu_div = soup.find('div', class_='weekly-menu')
     if not gabys_menu_div:
-        gabys_menu_div = soup.find('div', class_='weekly-menu')
+        # Fallback if there's still something else
+        gabys_menu_div = soup.find('div', class_='gabys-menu')
 
     if not gabys_menu_div:
-        return _log_and_return_error(logger, "Menu not found.")
+        return _log_and_return_error(logger, "Menu not found in markup.")
+
+    # We will iterate over <p> tags and detect headings vs. items
+    p_tags = gabys_menu_div.find_all('p')
+    if not p_tags:
+        return _log_and_return_error(logger, "No <p> tags found under weekly menu.")
 
     sections = []
-    current_weekday_str = current_weekday.as_english_str()
+    current_section = None
+    current_weekday_str = current_weekday.as_english_str().lower()
 
-    for p in gabys_menu_div.find_all('p'):
-        # Extract section title
-        strong = p.find('strong')
-        strong_span = strong.find('span') if strong else None
-        section_title = strong_span.get_text(strip=True) if strong_span else None
+    for p in p_tags:
+        # Extract the full text of the paragraph, splitting on newline
+        # to separate heading from additional text if they are in the same <p>.
+        full_text = p.get_text(separator='\n', strip=True)
+        lines = [line.strip() for line in full_text.split('\n') if line.strip()]
 
-        if not section_title:
-            continue
+        strong_tag = p.find('strong')
+        span_in_strong = strong_tag.find('span') if strong_tag else None
 
-        # Extract menu items within the section
-        content = p.get_text(separator='\n', strip=True)
-        lines = content.split('\n')
-        items = lines[1:]  # Skip the first line, as it is the section title
+        if span_in_strong:
+            # We encountered a new heading in this paragraph
+            if current_section:
+                # Close off the previous section if it exists
+                sections.append(current_section)
 
-        # Filter by current weekday or "Salad of the week"
-        if current_weekday_str in section_title or "Salad of the week" in section_title:
-            sections.append({
-                'heading': section_title,
+            # The first line is the heading; the rest (if any) are items in the same paragraph
+            heading_line = lines[0]
+            items = lines[1:]  # Remainder of lines in this paragraph are the items
+
+            current_section = {
+                'heading': heading_line,
                 'items': items
-            })
+            }
+        else:
+            # No heading => treat it as items for the current section, if there is one
+            if current_section:
+                current_section['items'].extend(lines)
 
-    if not sections:
-        return _log_and_return_error(logger, "No menu sections found.")
+    # Don't forget to append the last open section
+    if current_section:
+        sections.append(current_section)
 
-    return sections, None
+    # Filter out only the sections that match the current weekday or "Salad of the week"
+    filtered_sections = []
+    for section in sections:
+        heading_lower = section['heading'].lower()
+        if current_weekday_str in heading_lower or "salad of the week" in heading_lower:
+            filtered_sections.append(section)
+
+    if not filtered_sections:
+        return _log_and_return_error(
+            logger, "No menu sections found matching current weekday or 'Salad of the week'."
+        )
+
+    return filtered_sections, None
 
 
 def get_gabys_menu_data(
@@ -77,23 +107,19 @@ def get_gabys_menu_data(
             - The extracted menu data as a dictionary.
             - An error message if extraction fails, or None on success.
     """
-    # Fetch the raw website content
     content = get_website_content(logger, GABYS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT)
     if not content:
         return _log_and_return_error(logger, "Failed to retrieve website content.")
 
-    # Extract menu sections
     sections, error = extract_gabys_menu_sections(logger, content, current_weekday)
     if error:
         return None, error
 
-    # Format the menu data
     menu_data = {
         'restaurant_name': "Gaby's",
         'sections': sections
     }
-
-    logger.info(f"Successfully extracted menu for {current_weekday} from Gaby's.")
+    logger.info(f"Successfully extracted menu for {current_weekday.as_english_str()} from Gaby's.")
     return menu_data, None
 
 

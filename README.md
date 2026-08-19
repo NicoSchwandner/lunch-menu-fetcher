@@ -44,7 +44,24 @@ This AWS Lambda function fetches daily lunch menus from multiple restaurants (Hi
 2. **Local Mocks:**
    The `local/mock` directory contains mock data for each restaurant. These are used to simulate the actual restaurant endpoints locally.
 
-3. **Local Run Script:**
+3. **Parser Checks:**
+
+   The restaurants keep restyling their pages, so each parser is checked against
+   real snapshots of both the current and an older layout:
+
+   ```bash
+   python test_parsers.py   # or: pytest
+   ```
+
+   These run in CI before every deploy. When a menu breaks, save a fresh snapshot
+   into `local/mock/` and run them again — that reproduces the failure offline.
+
+   Headings are matched by **text** (weekday names in Swedish and English, plus a
+   few weekly section names) and by **shape** (a short, fully emphasised block),
+   never by CSS class names. The menu region is found by locating the densest
+   cluster of plain weekday headings on the page.
+
+4. **Local Run Script:**
    For local debugging, you can use a script like `run_local.py` (see the example in the conversation above). This script:
 
    - Mocks out the HTTP requests using `responses`.

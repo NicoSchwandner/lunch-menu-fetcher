@@ -1,9 +1,24 @@
 import logging
-from typing import Tuple, Optional, List, Dict
+from typing import Dict, List, Optional, Tuple
 
 from config import HILDAS_MENU_URL, RESTAURANT_REQUEST_TIMEOUT
 from src.restaurants.general import get_json_data
 from src.utils.weekday import CurrentWeekday
+
+def select_current_menu(logger: logging.Logger, data: List[Dict], current_weekday: CurrentWeekday) -> Dict:
+    """
+    Picks the menu for the current week, falling back to the newest one.
+
+    The API returns one entry per week; matching on the week number means a late
+    publish shows a stale menu with a warning instead of the wrong week silently.
+    """
+    current_week = current_weekday.iso_week()
+    for entry in data:
+        if str(entry.get('acf', {}).get('week', '')).strip() == str(current_week):
+            return entry
+
+    logger.warning(f"No menu published for week {current_week}; using the most recent one.")
+    return data[0]
 
 def extract_menu_items(
     logger: logging.Logger, data: List[Dict], current_weekday: CurrentWeekday
@@ -21,7 +36,7 @@ def extract_menu_items(
             - The menu items as a list of dictionaries.
             - The category string, or an error message if extraction fails.
     """
-    latest_menu = data[0]
+    latest_menu = select_current_menu(logger, data, current_weekday)
     days = latest_menu.get('acf', {}).get('days', [])
 
     if not days:
@@ -29,15 +44,15 @@ def extract_menu_items(
 
     current_weekday_lower = current_weekday.as_english_str().lower()
 
-    if not current_weekday_lower:
-        return _log_and_return_error(logger, f"Invalid or unsupported weekday: {current_weekday}")
-
-    current_day_menu = next((day for day in days if day['day'].lower() == current_weekday_lower), None)
+    current_day_menu = next(
+        (day for day in days if str(day.get('day', '')).strip().lower() == current_weekday_lower),
+        None
+    )
     if not current_day_menu:
         return _log_and_return_error(logger, f"No menu found for {current_weekday}.")
 
-    category = current_day_menu.get('category', '').strip()
-    menu_items = current_day_menu.get('menu', [])
+    category = str(current_day_menu.get('category') or '').strip()
+    menu_items = current_day_menu.get('menu') or []
 
     if not menu_items:
         return _log_and_return_error(logger, f"No menu items found for {current_weekday}.")
@@ -57,16 +72,17 @@ def format_menu_data(menu_items: List[Dict[str, str]], category: str) -> Dict:
     """
     formatted_items = []
     for item in menu_items:
-        title = item.get('title', '').strip()
-        text = item.get('text', '').strip().replace('\r\n', ' ').replace('\n', ' ')
+        title = str(item.get('title') or '').strip()
+        text = ' '.join(str(item.get('text') or '').split())
         new_item = f"{title}: {text}" if title and text else title or text
-        formatted_items.append(new_item)
+        if new_item:
+            formatted_items.append(new_item)
 
     return {
         'restaurant_name': "Hilda's",
         'sections': [
             {
-                'heading': category,
+                'heading': category or "Dagens lunch",
                 'items': formatted_items,
             }
         ]
@@ -104,15 +120,5 @@ def get_hildas_menu_data(
     return menu_data, None
 
 def _log_and_return_error(logger: logging.Logger, error_message: str) -> Tuple[None, str]:
-    """
-    Logs an error message and returns it in a consistent format.
-
-    Args:
-        logger (logging.Logger): The logger instance.
-        error_message (str): The error message to log.
-
-    Returns:
-        Tuple[None, str]: A tuple of None and the error message.
-    """
     logger.error(error_message)
     return None, error_message

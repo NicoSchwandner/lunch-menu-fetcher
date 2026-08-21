@@ -12,6 +12,7 @@ from local.mock.bror_och_bord_html_mock import get_html_text as bror_och_bord_ht
 from local.mock.gabys_html_mock import get_html_text as gabys_html
 from local.mock.gabys_html_mock import get_html_text_legacy as gabys_legacy_html
 from local.mock.hildas_json_mock import get_json_text as hildas_json
+from src.menu_fetcher import filter_restaurants, get_restaurants
 from src.restaurants.bror_och_bord import extract_bror_och_bord_menu_sections
 from src.restaurants.gabys import extract_gabys_menu_sections
 from src.restaurants.hildas import extract_menu_items, format_menu_data
@@ -88,6 +89,17 @@ def test_weekday_matching_rejects_ranges():
     assert not wednesday.matches("Lunch is served Monday to Friday")
     assert plain_weekday_index("Måndag 25/8") == 0
     assert plain_weekday_index("Sunday – Tusedays") is None
+
+
+def test_restaurant_filtering():
+    all_restaurants = get_restaurants()
+    names = lambda q: [r['name'] for r in filter_restaurants(all_restaurants, q)]
+    assert names('') == [r['name'] for r in all_restaurants]
+    assert names('g') == names('gabys') == ["Gaby's"]
+    assert names('b') == names('BROR') == ["Bror och Bord"]
+    assert names('h') == names("Hilda's") == ["Hilda's"]
+    assert names('gaby') == []
+    assert names('sushi') == []
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ This AWS Lambda function fetches daily lunch menus from multiple restaurants (Hi
 ## Overview
 
 - **Input:**
-  The Lambda function expects an `event` containing a `response_url` parameter that specifies where results are posted (e.g., a Slack webhook URL). This Lambda function is designed to be used together with [lambda-proxy](https://github.com/NicoSchwandner/lambda-proxy).
+  The Lambda function expects an `event` containing a `response_url` parameter that specifies where results are posted (e.g., a Slack webhook URL). An optional `text` parameter (the Slack slash-command argument) scopes the fetch to one restaurant — `g`/`gabys`, `b`/`bror`, `h`/`hildas`. Empty `text` fetches all. This Lambda function is designed to be used together with [lambda-proxy](https://github.com/NicoSchwandner/lambda-proxy).
 
 - **Process:**
 

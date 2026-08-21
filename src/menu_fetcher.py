@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
+import re
 import requests
 from typing import List, Dict, Callable
 
@@ -49,19 +50,37 @@ def process_restaurant_result(
 
 def get_restaurants() -> List[Dict[str, Callable]]:
     return [
-        {'name': "Gaby's",        'function': get_gabys_menu_data},
-        {'name': "Bror och Bord", 'function': get_bror_och_bord_menu_data},
-        {'name': "Hilda's",       'function': get_hildas_menu_data}
+        {'name': "Gaby's",        'aliases': ('g', 'gabys'),  'function': get_gabys_menu_data},
+        {'name': "Bror och Bord", 'aliases': ('b', 'bror'),   'function': get_bror_och_bord_menu_data},
+        {'name': "Hilda's",       'aliases': ('h', 'hildas'), 'function': get_hildas_menu_data}
     ]
 
 
-def compile_and_post_menus(logger: logging.Logger, response_url: str) -> None:
+def filter_restaurants(restaurants: List[Dict[str, Callable]], query: str) -> List[Dict[str, Callable]]:
+    """Pick the restaurant whose alias matches the query ("g"/"gabys", "b"/"bror", "h"/"hildas")."""
+    query = re.sub(r'[^a-z0-9]', '', query.lower())
+    if not query:
+        return restaurants
+
+    return [r for r in restaurants if query in r['aliases']]
+
+
+def compile_and_post_menus(logger: logging.Logger, response_url: str, query: str = '') -> None:
     current_weekday = CurrentWeekday()
-    restaurants = get_restaurants()
+    restaurants = filter_restaurants(get_restaurants(), query)
+
+    if not restaurants:
+        logger.info(f"No restaurant matched '{query}'.")
+        known = ", ".join(f"{r['name']} ({'/'.join(r['aliases'])})" for r in get_restaurants())
+        send_slack_message(logger, response_url, SlackMessagePost(
+            text=f'No restaurant matches "{query}". Try one of: {known}.',
+            respone_type="ephemeral"
+        ))
+        return
 
     try:
         success_count = 0
-        with ThreadPoolExecutor(max_workers=3) as executor:
+        with ThreadPoolExecutor(max_workers=len(restaurants)) as executor:
             future_to_restaurant = {
                 executor.submit(r['function'], logger, current_weekday): r
                 for r in restaurants

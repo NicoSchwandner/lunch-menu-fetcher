@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         return LambdaResponse(status_code=400, message=error_message).to_dict()
 
     try:
-        compile_and_post_menus(logger, response_url)
+        compile_and_post_menus(logger, response_url, event.get('text') or '')
 
     except Exception as e:
         logger.error(f'Error processing the request: {e}', exc_info=True)
